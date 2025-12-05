@@ -8,7 +8,7 @@ namespace WebApplication1.Models
     public class User
     {
         [Key]
-        [Column("UserId")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // TỰ ĐỘNG TĂNG
         public int UserId { get; set; }
 
         [Required]

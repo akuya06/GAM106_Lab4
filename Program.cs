@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using WebApplication1.Models;
 using WebApplication1.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,19 +16,36 @@ builder.Services.AddControllersWithViews();
 
 // Swagger services
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "WebApplication1 API",
+        Version = "v1",
+        Description = "API docs"
+    });
+
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "Nhập JWT token ở dạng: Bearer {token}",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+});
 
 // Configure Entity Framework Core with SQLite
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// bind EmailSetting from configuration (section name: "EmailSetting")
+builder.Services.Configure<EmailSetting>(builder.Configuration.GetSection("EmailSetting"));
+
 var jwt = builder.Configuration.GetSection("Jwt");
-var secret = jwt["Key"];
-if (string.IsNullOrWhiteSpace(secret))
-{
-    throw new InvalidOperationException("Missing configuration: Jwt:Key. Add Jwt section to appsettings.json or set environment variable 'Jwt__Key'.");
-}
-var key = Encoding.UTF8.GetBytes(secret);
+var jwtKey = jwt["Key"] ?? throw new System.InvalidOperationException("JWT Key is not configured in 'Jwt:Key'.");
+var key = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -36,13 +54,12 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false; // production: true + HTTPS
+    options.RequireHttpsMetadata = true;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
-        ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwt["Issuer"],
         ValidAudience = jwt["Audience"],
@@ -50,8 +67,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.Configure<EmailSetting>(builder.Configuration.GetSection("EmailSettings"));
-builder.Services.AddTransient<EmailService>();
+builder.Services.AddAuthorization();
+
+// đăng ký dịch vụ gửi email (IEmailService -> EmailService)
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 
@@ -68,6 +87,7 @@ else
     app.UseSwaggerUI(c =>
     {
         c.RoutePrefix = "swagger"; // access at /swagger
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplication1 v1");
         c.DocumentTitle = "API Docs";
     });
 }
@@ -75,7 +95,7 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseAuthentication(); // <- phải trước UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -85,21 +105,20 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// Test send email once at startup (use a scope)
-// using (var scope = app.Services.CreateScope())
-// {
-//     var svc = scope.ServiceProvider.GetRequiredService<EmailService>();
-//     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-//     try
-//     {
-//         // thay bằng email bạn muốn nhận; có thể lấy từ config
-//         await svc.SendEmailAsync("tungtt64@fpt.edu.vn", "Hơi thở của Nước", "<p>Hello từ Program.cs</p>");
-//         logger.LogInformation("Startup test email sent.");
-//     }
-//     catch (System.Exception ex)
-//     {
-//         logger.LogError(ex, "Failed to send startup test email.");
-//     }
-// }
-
+//apply database migrations automatically (optional)
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = loggerFactory.CreateLogger<Program>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
 app.Run();

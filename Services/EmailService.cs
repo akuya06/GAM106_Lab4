@@ -7,7 +7,7 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Services
 {
-    public class EmailService
+    public class EmailService : IEmailService
     {
         private readonly EmailSetting _settings;
         public EmailService(IOptions<EmailSetting> opts) => _settings = opts.Value;

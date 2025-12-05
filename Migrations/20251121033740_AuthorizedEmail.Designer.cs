@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -10,9 +11,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251121033740_AuthorizedEmail")]
+    partial class AuthorizedEmail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -186,102 +189,12 @@ namespace WebApplication1.Migrations
                         new
                         {
                             regionId = 1,
-                            regionName = "Vietnam"
+                            regionName = "VN"
                         },
                         new
                         {
                             regionId = 2,
-                            regionName = "United States"
-                        },
-                        new
-                        {
-                            regionId = 3,
-                            regionName = "Japan"
-                        },
-                        new
-                        {
-                            regionId = 4,
-                            regionName = "South Korea"
-                        },
-                        new
-                        {
-                            regionId = 5,
-                            regionName = "China"
-                        },
-                        new
-                        {
-                            regionId = 6,
-                            regionName = "United Kingdom"
-                        },
-                        new
-                        {
-                            regionId = 7,
-                            regionName = "France"
-                        },
-                        new
-                        {
-                            regionId = 8,
-                            regionName = "Germany"
-                        },
-                        new
-                        {
-                            regionId = 9,
-                            regionName = "Canada"
-                        },
-                        new
-                        {
-                            regionId = 10,
-                            regionName = "Australia"
-                        },
-                        new
-                        {
-                            regionId = 11,
-                            regionName = "Brazil"
-                        },
-                        new
-                        {
-                            regionId = 12,
-                            regionName = "India"
-                        },
-                        new
-                        {
-                            regionId = 13,
-                            regionName = "Thailand"
-                        },
-                        new
-                        {
-                            regionId = 14,
-                            regionName = "Singapore"
-                        },
-                        new
-                        {
-                            regionId = 15,
-                            regionName = "Netherlands"
-                        },
-                        new
-                        {
-                            regionId = 16,
-                            regionName = "Switzerland"
-                        },
-                        new
-                        {
-                            regionId = 17,
-                            regionName = "Sweden"
-                        },
-                        new
-                        {
-                            regionId = 18,
-                            regionName = "Italy"
-                        },
-                        new
-                        {
-                            regionId = 19,
-                            regionName = "Spain"
-                        },
-                        new
-                        {
-                            regionId = 20,
-                            regionName = "Russia"
+                            regionName = "US"
                         });
                 });
 
@@ -306,27 +219,12 @@ namespace WebApplication1.Migrations
                         new
                         {
                             roleId = 1,
-                            Name = "Cleric"
+                            Name = "Admin"
                         },
                         new
                         {
                             roleId = 2,
-                            Name = "Warrior"
-                        },
-                        new
-                        {
-                            roleId = 3,
-                            Name = "Knight"
-                        },
-                        new
-                        {
-                            roleId = 4,
-                            Name = "Mage"
-                        },
-                        new
-                        {
-                            roleId = 5,
-                            Name = "Ranger"
+                            Name = "User"
                         });
                 });
 
@@ -334,7 +232,8 @@ namespace WebApplication1.Migrations
                 {
                     b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("UserId");
 
                     b.Property<string>("Email")
                         .IsRequired()

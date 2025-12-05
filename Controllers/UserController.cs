@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-[Route("api/[controller]")]
+[Route("api/users")]
 [ApiController]
-public class UserController : ControllerBase
+public class UserApiController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
 
-    public UserController(ApplicationDbContext context)
+    public UserApiController(ApplicationDbContext context)
     {
         _context = context;
     }

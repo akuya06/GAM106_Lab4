@@ -83,13 +83,34 @@ public class ApplicationDbContext : DbContext
 
         // Seed data (use the actual property names defined in the model classes)
         modelBuilder.Entity<Role>().HasData(
-            new Role { roleId = 1, Name = "Admin" },
-            new Role { roleId = 2, Name = "User" }
+            new Role { roleId = 1, Name = "Cleric" },
+            new Role { roleId = 2, Name = "Warrior" },
+            new Role { roleId = 3, Name = "Knight" },
+            new Role { roleId = 4, Name = "Mage" },
+            new Role { roleId = 5, Name = "Ranger" }
         );
 
         modelBuilder.Entity<Region>().HasData(
-            new Region { regionId = 1, regionName = "VN" },
-            new Region { regionId = 2, regionName = "US" }
+            new Region { regionId = 1, regionName = "Vietnam" },
+            new Region { regionId = 2, regionName = "United States" },
+            new Region { regionId = 3, regionName = "Japan" },
+            new Region { regionId = 4, regionName = "South Korea" },
+            new Region { regionId = 5, regionName = "China" },
+            new Region { regionId = 6, regionName = "United Kingdom" },
+            new Region { regionId = 7, regionName = "France" },
+            new Region { regionId = 8, regionName = "Germany" },
+            new Region { regionId = 9, regionName = "Canada" },
+            new Region { regionId = 10, regionName = "Australia" },
+            new Region { regionId = 11, regionName = "Brazil" },
+            new Region { regionId = 12, regionName = "India" },
+            new Region { regionId = 13, regionName = "Thailand" },
+            new Region { regionId = 14, regionName = "Singapore" },
+            new Region { regionId = 15, regionName = "Netherlands" },
+            new Region { regionId = 16, regionName = "Switzerland" },
+            new Region { regionId = 17, regionName = "Sweden" },
+            new Region { regionId = 18, regionName = "Italy" },
+            new Region { regionId = 19, regionName = "Spain" },
+            new Region { regionId = 20, regionName = "Russia" }
         );
 
         modelBuilder.Entity<User>().HasData(
