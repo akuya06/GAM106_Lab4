@@ -24,7 +24,7 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build WebApplication1.csproj --configuration Release
 
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
@@ -62,4 +62,5 @@ jobs:
           app-name: 'lab-tphuocpd11922'
           slot-name: 'Production'
           package: .
+
           
