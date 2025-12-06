@@ -91,26 +91,13 @@ public class ApplicationDbContext : DbContext
         );
 
         modelBuilder.Entity<Region>().HasData(
-            new Region { regionId = 1, regionName = "Vietnam" },
-            new Region { regionId = 2, regionName = "United States" },
-            new Region { regionId = 3, regionName = "Japan" },
-            new Region { regionId = 4, regionName = "South Korea" },
-            new Region { regionId = 5, regionName = "China" },
-            new Region { regionId = 6, regionName = "United Kingdom" },
-            new Region { regionId = 7, regionName = "France" },
-            new Region { regionId = 8, regionName = "Germany" },
-            new Region { regionId = 9, regionName = "Canada" },
-            new Region { regionId = 10, regionName = "Australia" },
-            new Region { regionId = 11, regionName = "Brazil" },
-            new Region { regionId = 12, regionName = "India" },
-            new Region { regionId = 13, regionName = "Thailand" },
-            new Region { regionId = 14, regionName = "Singapore" },
-            new Region { regionId = 15, regionName = "Netherlands" },
-            new Region { regionId = 16, regionName = "Switzerland" },
-            new Region { regionId = 17, regionName = "Sweden" },
-            new Region { regionId = 18, regionName = "Italy" },
-            new Region { regionId = 19, regionName = "Spain" },
-            new Region { regionId = 20, regionName = "Russia" }
+            new Region { regionId = 1, regionName = "Africa" },
+            new Region { regionId = 2, regionName = "Asia" },
+            new Region { regionId = 3, regionName = "Europe" },
+            new Region { regionId = 4, regionName = "North America" },
+            new Region { regionId = 5, regionName = "South America" },
+            new Region { regionId = 6, regionName = "Oceania" },
+            new Region { regionId = 7, regionName = "Antarctica" }
         );
 
         modelBuilder.Entity<User>().HasData(

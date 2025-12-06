@@ -1,0 +1,200 @@
+﻿@model IEnumerable<WebApplication1.Models.User>
+
+<div class="container mt-4">
+    <h2>Game Users Management</h2>
+    
+    <div class="card mb-3">
+        <div class="card-body">
+            <button class="btn btn-success" onclick="showAddModal()">Add User</button>
+            <button class="btn btn-info" onclick="location.reload()">Refresh</button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="row" id="usersList">
+                <!-- Users will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Add User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control mb-2" id="newUsername" placeholder="Username">
+                <input type="email" class="form-control mb-2" id="newEmail" placeholder="Email">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" onclick="addUser()">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId">
+                <input type="text" class="form-control mb-2" id="editUsername" placeholder="Username">
+                <input type="email" class="form-control mb-2" id="editEmail" placeholder="Email">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="updateUser()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let addModal, editModal;
+
+document.addEventListener('DOMContentLoaded', function() {
+    addModal = new bootstrap.Modal(document.getElementById('addModal'));
+    editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    loadUsers();
+});
+
+function showAddModal() {
+    addModal.show();
+}
+
+async function loadUsers() {
+    try {
+        const response = await fetch('/api/users');
+        const users = await response.json();
+        
+        const usersList = document.getElementById('usersList');
+        usersList.innerHTML = '';
+        
+        if (users.length === 0) {
+            usersList.innerHTML = '<div class="col-12"><p>No users found</p></div>';
+            return;
+        }
+        
+        users.forEach(user => {
+            const userCard = `
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>${user.userName || 'Unknown'}</h6>
+                            <p>ID: ${user.userId}</p>
+                            <p>Email: ${user.email || 'N/A'}</p>
+                            <button class="btn btn-sm btn-primary" onclick="editUser(${user.userId})">Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.userId})">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            usersList.innerHTML += userCard;
+        });
+    } catch (error) {
+        console.error('Error loading users:', error);
+        document.getElementById('usersList').innerHTML = '<div class="col-12"><p>Error loading users</p></div>';
+    }
+}
+
+async function addUser() {
+    const username = document.getElementById('newUsername').value;
+    const email = document.getElementById('newEmail').value;
+    
+    if (!username || !email) {
+        alert('Please enter username and email');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ UserName: username, Email: email })
+        });
+        
+        if (response.ok) {
+            alert('User added!');
+            addModal.hide();
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newEmail').value = '';
+            loadUsers();
+        } else {
+            alert('Error adding user');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+async function editUser(id) {
+    try {
+        const response = await fetch('/api/users/' + id);
+        const user = await response.json();
+        
+        document.getElementById('editId').value = id;
+        document.getElementById('editUsername').value = user.userName || '';
+        document.getElementById('editEmail').value = user.email || '';
+        
+        editModal.show();
+    } catch (error) {
+        alert('Error loading user');
+    }
+}
+
+async function updateUser() {
+    const id = document.getElementById('editId').value;
+    const username = document.getElementById('editUsername').value;
+    const email = document.getElementById('editEmail').value;
+    
+    try {
+        const response = await fetch('/api/users/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                UserId: parseInt(id), 
+                UserName: username, 
+                Email: email 
+            })
+        });
+        
+        if (response.ok) {
+            alert('User updated!');
+            editModal.hide();
+            loadUsers();
+        } else {
+            alert('Error updating user');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+async function deleteUser(id) {
+    if (confirm('Delete this user?')) {
+        try {
+            const response = await fetch('/api/users/' + id, { method: 'DELETE' });
+            
+            if (response.ok) {
+                alert('User deleted!');
+                loadUsers();
+            } else {
+                alert('Error deleting user');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    }
+}
+</script>

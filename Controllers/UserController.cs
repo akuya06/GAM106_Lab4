@@ -1,117 +1,120 @@
-﻿namespace WebApplication1.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Data;
 using WebApplication1.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-[Route("api/users")]
-[ApiController]
-public class UserApiController : ControllerBase
+namespace WebApplication1.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public UserApiController(ApplicationDbContext context)
+    public class UserController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    // GET: api/User
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetUsers()
-    {
-        return await _context.Users
-            .Include(u => u.Role)
-            .Include(u => u.Region)
-            .ToListAsync();
-    }
-
-    // GET: api/User/5
-    [HttpGet("{id}")]
-    public async Task<ActionResult<User>> GetUser(int id)
-    {
-        var user = await _context.Users
-            .Include(u => u.Role)
-            .Include(u => u.Region)
-            .FirstOrDefaultAsync(u => u.UserId == id);
-
-        if (user == null)
-            return NotFound();
-
-        return user;
-    }
-
-    // POST: api/User
-    [HttpPost]
-    public async Task<ActionResult<User>> PostUser(User user)
-    {
-        // nếu client gửi nested Role/Region, mark state Unchanged
-        if (user.Role != null)
-            _context.Entry(user.Role).State = EntityState.Unchanged;
-        if (user.Region != null)
-            _context.Entry(user.Region).State = EntityState.Unchanged;
-
-        // nếu client gửi RoleId, đảm bảo tham chiếu đúng
-        if (user.RoleId.HasValue && user.Role == null)
+        public UserController(ApplicationDbContext context)
         {
-            var existingRole = await _context.Roles.FindAsync(user.RoleId.Value);
-            if (existingRole != null)
-                user.Role = existingRole;
+            _context = context;
         }
 
-        if (user.RegionId.HasValue && user.Region == null)
+        // MVC Route: /User/Index
+        public async Task<IActionResult> Index()
         {
-            var existingRegion = await _context.Regions.FindAsync(user.RegionId.Value);
-            if (existingRegion != null)
-                user.Region = existingRegion;
+            var users = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.Region)
+                .ToListAsync();
+            return View(users);
         }
 
-        _context.Users.Add(user);
-
-        try
+        // API Route: GET api/users
+        [HttpGet("api/users")]
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
+            return await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.Region)
+                .ToListAsync();
+        }
+
+        // API Route: GET api/users/5
+        [HttpGet("api/users/{id}")]
+        public async Task<ActionResult<User>> GetUser(int id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.Region)
+                .FirstOrDefaultAsync(u => u.UserId == id);
+
+            if (user == null)
+                return NotFound();
+
+            return user;
+        }
+
+        // API Route: POST api/users
+        [HttpPost("api/users")]
+        public async Task<ActionResult<User>> PostUser([FromBody] User user)
+        {
+            // Set default values if not provided
+            if (user.RoleId == null || user.RoleId == 0)
+                user.RoleId = 1;
+            if (user.RegionId == null || user.RegionId == 0)
+                user.RegionId = 1;
+
+            _context.Users.Add(user);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(new { error = ex.InnerException?.Message ?? ex.Message });
+            }
+
+            return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
+        }
+
+        // API Route: PUT api/users/5
+        [HttpPut("api/users/{id}")]
+        public async Task<IActionResult> PutUser(int id, [FromBody] User user)
+        {
+            if (id != user.UserId)
+                return BadRequest();
+
+            var existingUser = await _context.Users.FindAsync(id);
+            if (existingUser == null)
+                return NotFound();
+
+            existingUser.UserName = user.UserName;
+            existingUser.Email = user.Email;
+            if (user.RoleId != null && user.RoleId > 0)
+                existingUser.RoleId = user.RoleId;
+            if (user.RegionId != null && user.RegionId > 0)
+                existingUser.RegionId = user.RegionId;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
+        // API Route: DELETE api/users/5
+        [HttpDelete("api/users/{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound();
+
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
+
+            return NoContent();
         }
-        catch (DbUpdateException ex)
-        {
-            return BadRequest(new { error = ex.InnerException?.Message ?? ex.Message });
-        }
-
-        return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutUser(int id, User user)
-    {
-        if (id != user.UserId)
-            return BadRequest();
-
-        _context.Entry(user).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            return NotFound();
-        }
-
-        return NoContent();
-    }
-
-    // DELETE: api/User/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(int id)
-    {
-        var user = await _context.Users.FindAsync(id);
-        if (user == null)
-            return NotFound();
-
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
     }
 }

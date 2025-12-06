@@ -11,8 +11,8 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251119091325_UpdateModels")]
-    partial class UpdateModels
+    [Migration("20251206003442_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -189,12 +189,102 @@ namespace WebApplication1.Migrations
                         new
                         {
                             regionId = 1,
-                            regionName = "VN"
+                            regionName = "Vietnam"
                         },
                         new
                         {
                             regionId = 2,
-                            regionName = "US"
+                            regionName = "United States"
+                        },
+                        new
+                        {
+                            regionId = 3,
+                            regionName = "Japan"
+                        },
+                        new
+                        {
+                            regionId = 4,
+                            regionName = "South Korea"
+                        },
+                        new
+                        {
+                            regionId = 5,
+                            regionName = "China"
+                        },
+                        new
+                        {
+                            regionId = 6,
+                            regionName = "United Kingdom"
+                        },
+                        new
+                        {
+                            regionId = 7,
+                            regionName = "France"
+                        },
+                        new
+                        {
+                            regionId = 8,
+                            regionName = "Germany"
+                        },
+                        new
+                        {
+                            regionId = 9,
+                            regionName = "Canada"
+                        },
+                        new
+                        {
+                            regionId = 10,
+                            regionName = "Australia"
+                        },
+                        new
+                        {
+                            regionId = 11,
+                            regionName = "Brazil"
+                        },
+                        new
+                        {
+                            regionId = 12,
+                            regionName = "India"
+                        },
+                        new
+                        {
+                            regionId = 13,
+                            regionName = "Thailand"
+                        },
+                        new
+                        {
+                            regionId = 14,
+                            regionName = "Singapore"
+                        },
+                        new
+                        {
+                            regionId = 15,
+                            regionName = "Netherlands"
+                        },
+                        new
+                        {
+                            regionId = 16,
+                            regionName = "Switzerland"
+                        },
+                        new
+                        {
+                            regionId = 17,
+                            regionName = "Sweden"
+                        },
+                        new
+                        {
+                            regionId = 18,
+                            regionName = "Italy"
+                        },
+                        new
+                        {
+                            regionId = 19,
+                            regionName = "Spain"
+                        },
+                        new
+                        {
+                            regionId = 20,
+                            regionName = "Russia"
                         });
                 });
 
@@ -219,12 +309,27 @@ namespace WebApplication1.Migrations
                         new
                         {
                             roleId = 1,
-                            Name = "Admin"
+                            Name = "Cleric"
                         },
                         new
                         {
                             roleId = 2,
-                            Name = "User"
+                            Name = "Warrior"
+                        },
+                        new
+                        {
+                            roleId = 3,
+                            Name = "Knight"
+                        },
+                        new
+                        {
+                            roleId = 4,
+                            Name = "Mage"
+                        },
+                        new
+                        {
+                            roleId = 5,
+                            Name = "Ranger"
                         });
                 });
 
@@ -232,8 +337,7 @@ namespace WebApplication1.Migrations
                 {
                     b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("UserId");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Email")
                         .IsRequired()
